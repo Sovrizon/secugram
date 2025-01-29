@@ -12,9 +12,22 @@ MONGO_USERNAME = os.getenv("MONGO_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@instalitre.3cjul.mongodb.net/"
 client = MongoClient(MONGO_URI)
-db = client["instalitre"]  # Nom de la base de données
-users_col = db["users"]  # Collection pour les utilisateurs
-posts_col = db["posts"]  # Collection pour les publications
+
+from pymongo import MongoClient
+
+uri = "mongodb+srv://loqmenanani:kMCElitKnEASYe8i@instalitre.3cjul.mongodb.net/admin?retryWrites=true&w=majority"
+client = MongoClient(uri)
+
+try:
+    print(client.server_info())  # Vérifie la connexion
+    print("Connexion réussie ✅")
+    db = client["instalitre"]  # Nom de la base de données
+    users_col = db["users"]  # Collection pour les utilisateurs
+    posts_col = db["posts"]  # Collection pour les publications
+
+except Exception as e:
+    print("Erreur de connexion ❌:", e)
+
 
 # Contexte de hachage pour les mots de passe
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
