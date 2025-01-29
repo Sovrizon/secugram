@@ -1,76 +1,61 @@
-# Cahier des Charges Simplifié - Instalitre
+# Cahier des Charges Simplifié – Instalitre
 
 ## 1. Introduction
-
-Le projet Instalitre consiste à concevoir et développer une application web permettant aux utilisateurs de publier, consulter et gérer des images associées à leurs comptes. L'application doit être intuitive, sécurisée, et fournir une gestion efficace des données et des interactions entre utilisateurs.
+Ce projet consiste à créer une application web nommée **Instalitre**, permettant à des utilisateurs :
+- De s’inscrire et se connecter de manière sécurisée (mot de passe haché).
+- De publier des images avec une légende, en choisissant si elles sont **publiques** ou **privées**.
+- De consulter leurs propres publications et celles, publiques, des autres utilisateurs.
 
 ---
 
-## 2. Objectifs
+## 2. Fonctionnalités
 
 ### 2.1 Gestion des utilisateurs
-- **Création et gestion de comptes** :
-  - Inscription et connexion des utilisateurs.
-  - Authentification sécurisée (hachage des mots de passe, SSO avec Google).
-  - Récupération de mot de passe en cas d'oubli.
+1. **Inscription**  
+   - Saisie du nom d’utilisateur et du mot de passe.  
+   - Vérification que le nom n’est pas déjà pris.  
+   - Hachage du mot de passe avant stockage en base.
 
-- **Profils utilisateurs** :
-  - Gestion des informations personnelles (nom d’utilisateur, email, avatar).
-  - Visualisation des publications associées au compte.
+2. **Connexion**  
+   - Saisie du nom d’utilisateur et du mot de passe.  
+   - Vérification du hachage pour authentifier l’utilisateur.  
+   - Stockage de l’état de connexion dans la session (Streamlit).
 
-### 2.2 Dépôt et gestion des publications
-- **Ajout de publications** :
-  - Téléversement d’images (formats : JPG, PNG).
-  - Ajout d’une légende pour chaque publication.
+3. **Déconnexion**  
+   - Possibilité de se déconnecter et de réinitialiser l’état de la session.
 
-- **Gestion des publications** :
-  - Visualisation des publications par utilisateur.
-  - Suppression ou modification des légendes et images.
-  - Filtrage des publications par date.
+### 2.2 Gestion des publications
+1. **Création de publication**  
+   - Téléversement d’une image (formats pris en charge : JPG, PNG).  
+   - Choix d’une légende (texte).  
+   - Sélection d’un mode **Privé** ou **Public**.  
+   - Enregistrement de la publication en base (image binaire, légende, info privée/publique).
+
+2. **Affichage des publications**  
+   - **Page personnelle** : L’utilisateur voit **toutes** ses propres publications (publiques ou privées).  
+   - **Section “Autres utilisateurs”** : L’utilisateur voit **uniquement** les publications publiques des autres.
 
 ### 2.3 Sécurité et confidentialité
-- Sécurisation des données via une base MongoDB (hash des mots de passe, stockage des images en binaire).
-- Autorisation et restrictions : chaque utilisateur peut uniquement modifier ou supprimer ses propres publications.
+- Les mots de passe sont **hachés** avec **Passlib** (bcrypt).  
+- Les utilisateurs **ne peuvent pas** accéder aux publications privées des autres.  
+- Les images sont stockées en binaire dans la base **MongoDB**.
 
 ---
 
-## 3. Fonctionnalités techniques
+## 3. Contraintes techniques
 
-### 3.1 Authentification
-- Authentification classique via email/mot de passe.
-- Connexion via Google (SSO).
+1. **Technologies**  
+   - **Langage** : Python  
+   - **Framework** : Streamlit pour l’interface utilisateur  
+   - **Base de données** : MongoDB (hébergée sur Atlas)  
+   - **Sécurité** : Passlib pour le hachage des mots de passe
 
-### 3.2 Interface utilisateur
-- Interface intuitive et responsive avec Streamlit.
-- Galerie de publications triées par date.
-- Interface simple pour ajouter/supprimer des publications.
+2. **Hébergement**  
+   - Possibilité d’exécuter localement ou sur un service cloud.
 
-### 3.3 Base de données
-- Utilisation de MongoDB pour :
-  - Stocker les comptes utilisateurs.
-  - Associer chaque publication à un utilisateur unique.
-  - Gérer les données des publications (images et légendes).
+3. **Performance**  
+   - Téléversement et affichage d’images de taille raisonnable.  
+   - Accès rapide aux documents via MongoDB.
 
 ---
 
-## 4. Contraintes techniques
-
-- **Technologies** :
-  - Backend : Python avec Streamlit.
-  - Base de données : MongoDB.
-  - Authentification : OAuth 2.0 pour SSO Google et Passlib pour les mots de passe.
-
-- **Hébergement** :
-  - Application locale ou hébergée via un service cloud (ex. Heroku, AWS).
-
-- **Performance** :
-  - Temps de réponse acceptable pour le téléversement et l’affichage des images.
-  - Gestion efficace des images (compression ou adaptation si nécessaire).
-
----
-
-## 5. Évolutions futures (non obligatoires)
-
-- Ajout de fonctionnalités sociales : likes, commentaires, notifications.
-- Création d’une version mobile dédiée.
-- Support pour des formats vidéo ou GIF.
