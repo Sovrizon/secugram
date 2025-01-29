@@ -17,16 +17,16 @@ from pymongo import MongoClient
 
 uri = "mongodb+srv://loqmenanani:kMCElitKnEASYe8i@instalitre.3cjul.mongodb.net/admin?retryWrites=true&w=majority"
 client = MongoClient(uri)
+db = client["instalitre"]  # Nom de la base de données
+users_col = db["users"]  # Collection pour les utilisateurs
+posts_col = db["posts"]  # Collection pour les publications
 
-try:
-    client.server_info()  # Vérifie la connexion
-    print("Connexion réussie ✅")
-    db = client["instalitre"]  # Nom de la base de données
-    users_col = db["users"]  # Collection pour les utilisateurs
-    posts_col = db["posts"]  # Collection pour les publications
-
-except Exception as e:
-    print("Erreur de connexion ❌:", e)
+# try:
+#     client.server_info()  # Vérifie la connexion
+#     print("Connexion réussie ✅")
+#
+# except Exception as e:
+#     print("Erreur de connexion ❌:", e)
 
 
 # Contexte de hachage pour les mots de passe
@@ -145,10 +145,9 @@ def main():
                         if success:
                             st.session_state["logged_in"] = True
                             st.session_state["username"] = username
-                            # Récupération de l'utilisateur pour avoir son _id
                             user = get_user(username)
                             st.session_state["user_id"] = user["_id"]
-                            st.sidebar.success(msg)
+                            st.rerun()  # <-- Ajout de cette ligne pour forcer le rechargement
                         else:
                             st.sidebar.error(msg)
                     else:
@@ -170,7 +169,7 @@ def main():
         with st.form("post_form"):
             uploaded_image = st.file_uploader("Choisissez une image", type=["jpg", "jpeg", "png"])
             caption = st.text_input("Légende", placeholder="Description de la photo...")
-            is_private = st.checkbox("Publier en privé ?")  # Nouveau toggle
+            is_private = st.checkbox("Publier en privé")  # Nouveau toggle
 
             submit_post = st.form_submit_button("Publier")
 
@@ -188,9 +187,24 @@ def main():
             for post in reversed(user_posts):
                 image = Image.open(io.BytesIO(post["image"]))
                 st.image(image, use_container_width=True)
-                # Indiquer si le post est privé ou non
-                privacy_label = "Privé" if post.get("is_private") else "Public"
-                st.caption(f"{post['caption']} — *{privacy_label}*")
+
+                # Affichage du statut actuel
+                privacy_status = "Privé 🔒" if post.get("is_private") else "Public 🌍"
+                st.caption(f"{post['caption']} • {privacy_status}")
+
+                # Bouton de changement de visibilité
+                current_privacy = post.get("is_private", False)
+                new_privacy = not current_privacy
+                button_label = "Rendre Public 🌍" if current_privacy else "Rendre Privé 🔒"
+
+                if st.button(button_label, key=f"privacy_{post['_id']}"):
+                    posts_col.update_one(
+                        {"_id": post["_id"]},
+                        {"$set": {"is_private": new_privacy}}
+                    )
+                    st.success("Visibilité modifiée avec succès !")
+                    st.rerun()  # Rechargement immédiat de la page
+
                 st.markdown("---")
         else:
             st.write("Aucune publication pour le moment.")
