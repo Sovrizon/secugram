@@ -1,13 +1,16 @@
+import os
 import streamlit as st
 from pymongo import MongoClient
 from passlib.context import CryptContext
 from PIL import Image
 import io
-
 # ─────────────────────────────────────────────────────────
 # 1) CONNEXION À MONGODB
 # ─────────────────────────────────────────────────────────
-MONGO_URI = "mongodb+srv://loqmenanani:uO4BEbcUJj1ncJiX@instalitre.3cjul.mongodb.net/"  # À adapter selon votre configuration
+
+MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@instalitre.3cjul.mongodb.net/"
 client = MongoClient(MONGO_URI)
 db = client["instalitre"]  # Nom de la base de données
 users_col = db["users"]  # Collection pour les utilisateurs
