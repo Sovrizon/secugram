@@ -77,8 +77,8 @@ def login_user(username: str, password: str):
         return False, "Mot de passe incorrect."
 
 
-def add_post(user_id, image_pil, caption: str):
-    """Ajoute une publication dans la base."""
+def add_post(user_id, image_pil, caption: str, is_private: bool):
+    """Ajoute une publication dans la base avec un champ 'is_private'."""
     # Convertir l'image en binaire
     image_bytes = io.BytesIO()
     image_pil.save(image_bytes, format="PNG")
@@ -88,7 +88,8 @@ def add_post(user_id, image_pil, caption: str):
     posts_col.insert_one({
         "user_id": user_id,
         "image": image_binary,
-        "caption": caption
+        "caption": caption,
+        "is_private": is_private  # Nouveau champ
     })
 
 
@@ -158,7 +159,7 @@ def main():
             st.session_state["logged_in"] = False
             st.session_state["username"] = None
             st.session_state["user_id"] = None
-            st.experimental_rerun()
+            st.rerun()
 
     # ─────────────────────────────────────────────────────────
     # 4) SI UTILISATEUR CONNECTÉ : AJOUT & AFFICHAGE DE POSTS
@@ -169,12 +170,14 @@ def main():
         with st.form("post_form"):
             uploaded_image = st.file_uploader("Choisissez une image", type=["jpg", "jpeg", "png"])
             caption = st.text_input("Légende", placeholder="Description de la photo...")
+            is_private = st.checkbox("Publier en privé ?")  # Nouveau toggle
+
             submit_post = st.form_submit_button("Publier")
 
             if submit_post:
                 if uploaded_image and caption:
                     image_pil = Image.open(uploaded_image)
-                    add_post(st.session_state["user_id"], image_pil, caption)
+                    add_post(st.session_state["user_id"], image_pil, caption, is_private)
                     st.success("Publication ajoutée avec succès !")
                 else:
                     st.error("Image et légende obligatoires.")
@@ -182,14 +185,41 @@ def main():
         st.subheader("Vos publications")
         user_posts = load_posts(st.session_state["user_id"])
         if user_posts:
-            # Afficher dans l'ordre décroissant d'insertion
             for post in reversed(user_posts):
                 image = Image.open(io.BytesIO(post["image"]))
                 st.image(image, use_container_width=True)
-                st.caption(post["caption"])
+                # Indiquer si le post est privé ou non
+                privacy_label = "Privé" if post.get("is_private") else "Public"
+                st.caption(f"{post['caption']} — *{privacy_label}*")
                 st.markdown("---")
         else:
             st.write("Aucune publication pour le moment.")
+
+        # ─────────────────────────────────────────────────────────
+        # 5) AFFICHAGE DES PUBLICATIONS DE TOUS LES UTILISATEURS (SAUF UTILISATEUR CONNECTÉ)
+        # ─────────────────────────────────────────────────────────
+        st.subheader("Publications des autres utilisateurs")
+
+        # Exclure les publications de l'utilisateur connecté
+        # Exclure les publications de l'utilisateur connecté ET filtrer celles qui ne sont pas privées
+        all_posts = posts_col.find({
+            "user_id": {"$ne": st.session_state["user_id"]},
+            "is_private": False
+        })
+
+        if all_posts:
+            for post in reversed(list(all_posts)):  # Trier par ordre d'insertion
+                image = Image.open(io.BytesIO(post["image"]))
+                st.image(image, use_container_width=True)
+
+                # Récupérer l'utilisateur ayant posté
+                user = users_col.find_one({"_id": post["user_id"]})
+                username = user["username"] if user else "Utilisateur inconnu"
+
+                st.caption(f"**{username}** : {post['caption']}")
+                st.markdown("---")
+        else:
+            st.write("Aucune publication disponible pour le moment.")
 
 
 if __name__ == "__main__":
