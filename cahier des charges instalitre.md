@@ -1,4 +1,4 @@
-# Cahier des Charges Simplifié – Instalitre
+# Cahier des Charges – Instalitre
 
 ## 1. Introduction
 Ce projet consiste à créer une application web nommée **Instalitre**, permettant à des utilisateurs :
