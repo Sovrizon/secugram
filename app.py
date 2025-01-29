@@ -19,7 +19,7 @@ uri = "mongodb+srv://loqmenanani:kMCElitKnEASYe8i@instalitre.3cjul.mongodb.net/a
 client = MongoClient(uri)
 
 try:
-    print(client.server_info())  # Vérifie la connexion
+    client.server_info()  # Vérifie la connexion
     print("Connexion réussie ✅")
     db = client["instalitre"]  # Nom de la base de données
     users_col = db["users"]  # Collection pour les utilisateurs
