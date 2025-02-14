@@ -103,6 +103,10 @@ def load_posts(user_id):
 # 3) PAGE PRINCIPALE STREAMLIT
 # ─────────────────────────────────────────────────────────
 def main():
+
+    logo_image = Image.open("images/logo.png")  # Ajuste le chemin si nécessaire
+    st.image(logo_image, width=120)
+
     st.title("Instalitre")
 
     # Initialiser la session pour stocker les infos de l’utilisateur
