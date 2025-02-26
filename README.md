@@ -1,1 +1,1 @@
-# projet-info
+# Projet Informatique : Base de données décentralisées
