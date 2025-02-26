@@ -13,10 +13,8 @@ MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@instalitre.3cjul.mongodb.net/"
 client = MongoClient(MONGO_URI)
 
-from pymongo import MongoClient
 
-uri = "mongodb+srv://loqmenanani:kMCElitKnEASYe8i@instalitre.3cjul.mongodb.net/admin?retryWrites=true&w=majority"
-client = MongoClient(uri)
+client = MongoClient(MONGO_URI)
 db = client["instalitre"]  # Nom de la base de données
 users_col = db["users"]  # Collection pour les utilisateurs
 posts_col = db["posts"]  # Collection pour les publications
