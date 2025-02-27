@@ -4,27 +4,48 @@ from pymongo import MongoClient
 from passlib.context import CryptContext
 from PIL import Image
 import io
+
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis .env
+# load_dotenv()
+
 # ─────────────────────────────────────────────────────────
 # 1) CONNEXION À MONGODB
 # ─────────────────────────────────────────────────────────
 
-MONGO_USERNAME = os.getenv("MONGO_USERNAME")
-MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
-MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@instalitre.3cjul.mongodb.net/"
-client = MongoClient(MONGO_URI)
-
-
-client = MongoClient(MONGO_URI)
-db = client["instalitre"]  # Nom de la base de données
-users_col = db["users"]  # Collection pour les utilisateurs
-posts_col = db["posts"]  # Collection pour les publications
+# MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+# print(MONGO_USERNAME)
+# MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+#
+# if not MONGO_USERNAME or not MONGO_PASSWORD:
+#     st.error("Les identifiants MongoDB ne sont pas définis dans les variables d'environnement.")
+#     st.stop()
 
 # try:
-#     client.server_info()  # Vérifie la connexion
-#     print("Connexion réussie ✅")
+MONGO_URI = f"mongodb+srv://secugramdevs:XSkAvkRvBtNbPTRi@instalitre.3cjul.mongodb.net/"
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+
+    # Vérification de la connexion
+#     client.admin.command('ping')
+#     st.success("Connexion MongoDB réussie ✅")
 #
 # except Exception as e:
-#     print("Erreur de connexion ❌:", e)
+#     st.error(f"Erreur de connexion à MongoDB ❌: {e}")
+#     st.stop()
+
+# Sélection de la base et des collections
+db = client["instalitre"]
+users_col = db["users"]
+posts_col = db["posts"]
+
+
+try:
+    client.server_info()  # Vérifie la connexion
+    print("Connexion réussie ✅")
+
+except Exception as e:
+    print("Erreur de connexion ❌:", e)
 
 
 # Contexte de hachage pour les mots de passe
