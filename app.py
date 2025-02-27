@@ -7,26 +7,32 @@ import io
 
 from dotenv import load_dotenv
 
+
+st.set_page_config(
+    page_title="Secrugram",  # Le nom de l'onglet
+    page_icon="logo.png",  # Chemin vers ton logo
+    layout="wide"  # Passage en mode large
+)
 # Charger les variables d'environnement depuis .env
-# load_dotenv()
+load_dotenv()
 
 # ─────────────────────────────────────────────────────────
 # 1) CONNEXION À MONGODB
 # ─────────────────────────────────────────────────────────
 
-# MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+MONGO_USERNAME = os.getenv("MONGO_USERNAME")
 # print(MONGO_USERNAME)
-# MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 #
-# if not MONGO_USERNAME or not MONGO_PASSWORD:
-#     st.error("Les identifiants MongoDB ne sont pas définis dans les variables d'environnement.")
-#     st.stop()
+if not MONGO_USERNAME or not MONGO_PASSWORD:
+    st.error("Les identifiants MongoDB ne sont pas définis dans les variables d'environnement.")
+    st.stop()
 
 # try:
-MONGO_URI = f"mongodb+srv://secugramdevs:XSkAvkRvBtNbPTRi@instalitre.3cjul.mongodb.net/"
+MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@instalitre.3cjul.mongodb.net/"
 client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 
-    # Vérification de la connexion
+# Vérification de la connexion
 #     client.admin.command('ping')
 #     st.success("Connexion MongoDB réussie ✅")
 #
@@ -40,12 +46,12 @@ users_col = db["users"]
 posts_col = db["posts"]
 
 
-try:
-    client.server_info()  # Vérifie la connexion
-    print("Connexion réussie ✅")
-
-except Exception as e:
-    print("Erreur de connexion ❌:", e)
+# try:
+#     client.server_info()  # Vérifie la connexion
+#     print("Connexion réussie ✅")
+#
+# except Exception as e:
+#     print("Erreur de connexion ❌:", e)
 
 
 # Contexte de hachage pour les mots de passe
@@ -126,7 +132,7 @@ def main():
     logo_image = Image.open("images/logo.png")  # Ajuste le chemin si nécessaire
     st.image(logo_image, width=120)
 
-    st.title("Instalitre")
+    st.title("Secugram")
 
     # Initialiser la session pour stocker les infos de l’utilisateur
     if "logged_in" not in st.session_state:
