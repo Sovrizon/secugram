@@ -7,6 +7,8 @@ function Home() {
     const [isPrivate, setIsPrivate] = useState(false);
     const [posts, setPosts] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const userId = localStorage.getItem("user_id");
+    const username = localStorage.getItem("username");
 
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/posts/all")
@@ -18,7 +20,7 @@ function Home() {
         e.preventDefault();
 
         const formData = new FormData();
-        formData.append("user_id", localStorage.getItem("user_id"));
+        formData.append("user_id", userId);
         formData.append("caption", caption);
         formData.append("is_private", isPrivate);
         formData.append("image", image);
@@ -39,7 +41,10 @@ function Home() {
     return (
         <div className="max-w-4xl mx-auto py-8 space-y-6">
             <h2 className="text-3xl font-bold text-center mb-8">Publications</h2>
-            {localStorage.getItem("user_id") && (
+            {username && (
+                <h3 className="text-xl font-semibold text-center text-gray-700">Bienvenue {username}</h3>
+            )}
+            {userId && (
                 <form
                     onSubmit={handlePost}
                     className="bg-white p-6 rounded shadow-md mb-8 space-y-4 w-full max-w-md mx-auto"
@@ -99,17 +104,19 @@ function Home() {
                     </button>
                 </form>
             )}
-            {posts.map((post) => (
-                <div key={post.id} className="bg-white rounded shadow p-4">
-                    <img
-                        src={`data:image/png;base64,${btoa(post.image)}`}
-                        alt="post"
-                        className="w-full object-contain mb-4 rounded"
-                    />
-                    <p className="text-gray-800 font-semibold">@{post.username}</p>
-                    <p className="text-gray-600">{post.caption}</p>
-                </div>
-            ))}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {posts.map((post) => (
+                    <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">
+                        <img
+                            src={`data:image/jpeg;base64,${btoa(post.image)}`}
+                            alt={post.caption}
+                            className="mx-auto mb-2 max-h-64 object-contain"
+                        />
+                        <p className="text-sm text-gray-700 text-center">{post.caption}</p>
+                        <p className="text-xs text-gray-500 text-center">par {post.username}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
