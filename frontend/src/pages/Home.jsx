@@ -6,6 +6,7 @@ function Home() {
     const [caption, setCaption] = useState("");
     const [isPrivate, setIsPrivate] = useState(false);
     const [posts, setPosts] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/posts/all")
@@ -46,13 +47,33 @@ function Home() {
                     <h3 className="text-xl font-semibold text-center text-gray-800">
                         Nouvelle publication
                     </h3>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setImage(e.target.files[0])}
-                        className="w-full"
-                        required
-                    />
+                    <div
+                        className={`border-2 ${isDragging ? "border-blue-500 bg-blue-50" : "border-dashed border-gray-300"} rounded p-4 text-center cursor-pointer hover:border-blue-400 transition`}
+                        onClick={() => document.getElementById("imageInput").click()}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDragEnter={() => setIsDragging(true)}
+                        onDragLeave={() => setIsDragging(false)}
+                        onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDragging(false);
+                            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                setImage(e.dataTransfer.files[0]);
+                            }
+                        }}
+                    >
+                        {image ? (
+                            <p className="text-gray-700">{image.name}</p>
+                        ) : (
+                            <p className="text-gray-500">Glissez-déposez une image ou cliquez pour sélectionner un fichier</p>
+                        )}
+                        <input
+                            id="imageInput"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setImage(e.target.files[0])}
+                            className="hidden"
+                        />
+                    </div>
                     <input
                         type="text"
                         placeholder="Légende"
