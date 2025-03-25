@@ -14,7 +14,7 @@ def get_all_public_posts():
         user = users_col.find_one({"_id": post["user_id"]})
         result.append({
             "id": str(post["_id"]),
-            "image": post["image"].decode("latin1"),  # base64-like for now
+            "image": base64.b64encode(post["image"]).decode("utf-8"),  # base64 encode the image
             "caption": post["caption"],
             "username": user["username"] if user else "Inconnu"
         })
