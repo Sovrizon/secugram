@@ -129,7 +129,7 @@ def load_posts(user_id):
 # ─────────────────────────────────────────────────────────
 def main():
 
-    logo_image = Image.open("images/logo.png")  # Ajuste le chemin si nécessaire
+    logo_image = Image.open("../frontend/images/logo.png")  # Ajuste le chemin si nécessaire
     st.image(logo_image, width=120)
 
     st.title("Secugram")

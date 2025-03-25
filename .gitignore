@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.env
+backend/.env
 # C extensions
 *.so
 
@@ -130,7 +130,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+backend/.env
 .venv
 env/
 venv/
