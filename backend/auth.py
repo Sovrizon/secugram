@@ -1,34 +1,31 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 from db import users_col
 from utils import hash_password, verify_password, get_user
 
-auth_bp = Blueprint("auth", __name__)
+router = APIRouter()
 
-@auth_bp.route("/register", methods=["POST"])
-def register():
-    data = request.json
-    username = data.get("username")
-    password = data.get("password")
-    if not username or not password:
-        return jsonify({"error": "Champs manquants"}), 400
-    if get_user(username):
-        return jsonify({"error": "Utilisateur déjà existant"}), 400
+class UserIn(BaseModel):
+    username: str
+    password: str
+
+@router.post("/register")
+def register(user: UserIn):
+    if get_user(user.username):
+        raise HTTPException(status_code=400, detail="Utilisateur déjà existant")
     users_col.insert_one({
-        "username": username,
-        "password": hash_password(password)
+        "username": user.username,
+        "password": hash_password(user.password)
     })
-    return jsonify({"message": "Inscription réussie"}), 201
+    return {"message": "Inscription réussie"}
 
-@auth_bp.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    username = data.get("username")
-    password = data.get("password")
-    user = get_user(username)
-    if not user or not verify_password(password, user["password"]):
-        return jsonify({"error": "Identifiants invalides"}), 401
-    return jsonify({
+@router.post("/login")
+def login(user: UserIn):
+    db_user = get_user(user.username)
+    if not db_user or not verify_password(user.password, db_user["password"]):
+        raise HTTPException(status_code=401, detail="Identifiants invalides")
+    return {
         "message": "Connexion réussie",
-        "user_id": str(user["_id"]),
-        "username": user["username"]
-    })
+        "user_id": str(db_user["_id"]),
+        "username": db_user["username"]
+    }

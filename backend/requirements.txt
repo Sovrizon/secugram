@@ -1,5 +1,5 @@
-flask
-flask-cors
-pymongo
-python-dotenv
-passlib[bcrypt]
+fastapi==0.115.12
+uvicorn==0.34.0
+pymongo==4.10.1
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.1
