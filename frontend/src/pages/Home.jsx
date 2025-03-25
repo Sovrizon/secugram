@@ -42,7 +42,21 @@ function Home() {
         <div className="max-w-4xl mx-auto py-8 space-y-6">
             <h2 className="text-3xl font-bold text-center mb-8">Publications</h2>
             {username && (
-                <h3 className="text-xl font-semibold text-center text-gray-700">Bienvenue {username}</h3>
+                <>
+                    <h3 className="text-xl font-semibold text-center text-gray-700">Bienvenue {username}</h3>
+                    <div className="text-center mt-2">
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem("user_id");
+                                localStorage.removeItem("username");
+                                window.location.reload();
+                            }}
+                            className="text-sm text-red-500 underline hover:text-red-700"
+                        >
+                            Se déconnecter
+                        </button>
+                    </div>
+                </>
             )}
             {userId && (
                 <form
@@ -108,7 +122,7 @@ function Home() {
                 {posts.map((post) => (
                     <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">
                         <img
-                            src={`data:image/jpeg;base64,${btoa(post.image)}`}
+                            src={`data:image/jpeg;base64,${post.image}`}
                             alt={post.caption}
                             className="mx-auto mb-2 max-h-64 object-contain"
                         />
