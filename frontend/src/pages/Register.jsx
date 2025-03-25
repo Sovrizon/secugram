@@ -15,7 +15,15 @@ function Register() {
             });
             setMessage(res.data.message);
         } catch (err) {
-            setMessage(err.response?.data?.error || "Erreur inconnue");
+            try {
+                const res = await axios.post("http://127.0.0.1:8000/auth/register", {
+                    username,
+                    password,
+                });
+                setMessage(res.data.message);
+            } catch (err) {
+                setMessage(err.response?.data?.detail || "Erreur inconnue");
+            }
         }
     };
 

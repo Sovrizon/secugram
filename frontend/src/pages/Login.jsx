@@ -20,7 +20,7 @@ function Login() {
             localStorage.setItem("username", res.data.username);
             navigate("/"); // Redirection après connexion
         } catch (err) {
-            setMessage(err.response?.data?.error || "Erreur inconnue");
+            setMessage(err.response?.data?.detail || "Erreur inconnue");
         }
     };
 
