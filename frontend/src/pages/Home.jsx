@@ -8,13 +8,23 @@ function Home() {
     const [posts, setPosts] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
     const userId = localStorage.getItem("user_id");
-    const username = localStorage.getItem("username");
+    const [username, setUsername] = useState(localStorage.getItem("username"));
 
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/posts/all")
             .then(res => setPosts(res.data))
             .catch(() => setPosts([]));
     }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const storedUsername = localStorage.getItem("username");
+            if (storedUsername !== username) {
+                setUsername(storedUsername);
+            }
+        }, 500);
+        return () => clearInterval(interval);
+    }, [username]);
 
     const handlePost = async (e) => {
         e.preventDefault();
@@ -44,17 +54,8 @@ function Home() {
             {username && (
                 <>
                     <h3 className="text-xl font-semibold text-center text-gray-700">Bienvenue {username}</h3>
-                    <div className="text-center mt-2">
-                        <button
-                            onClick={() => {
-                                localStorage.removeItem("user_id");
-                                localStorage.removeItem("username");
-                                window.location.reload();
-                            }}
-                            className="text-sm text-red-500 underline hover:text-red-700"
-                        >
-                            Se déconnecter
-                        </button>
+                    <div className="absolute top-4 right-4">
+
                     </div>
                 </>
             )}
@@ -112,7 +113,7 @@ function Home() {
                     </label>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+                        className="w-full bg-centrale text-white py-2 rounded hover:opacity-90 transition"
                     >
                         Publier
                     </button>
