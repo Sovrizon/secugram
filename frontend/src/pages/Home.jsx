@@ -7,6 +7,7 @@ function Home() {
     const [isPrivate, setIsPrivate] = useState(false);
     const [posts, setPosts] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [loading, setLoading] = useState(false);
     const userId = localStorage.getItem("user_id");
     const [username, setUsername] = useState(localStorage.getItem("username"));
 
@@ -26,8 +27,44 @@ function Home() {
         return () => clearInterval(interval);
     }, [username]);
 
+    useEffect(() => {
+        const handleExtensionResponse = (event) => {
+            if (event.source !== window || event.data?.source !== "sovrizon-extension") return;
+            console.log("✅ Réponse reçue de l’extension :", event.data);
+            if (event.data.action === "encrypt_image" && event.data.status === "success") {
+                const formData = new FormData();
+                formData.append("user_id", userId);
+                formData.append("caption", caption);
+                formData.append("is_private", isPrivate);
+                const encryptedBlob = new Blob([Uint8Array.from(atob(event.data.data.encrypted_image), c => c.charCodeAt(0))]);
+                formData.append("image", encryptedBlob, "encrypted_image.bin");
+                console.log("📦 Création du FormData avec image chiffrée...");
+                axios.post("http://127.0.0.1:8000/posts/add", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }).then(() => {
+                    console.log("🚀 Envoi de l’image chiffrée au backend...");
+                    setLoading(false);
+                    console.log("✅ Publication réussie !");
+                    window.location.reload();
+                }).catch(() => {
+                    console.error("❌ Erreur lors de la publication.");
+                    alert("Erreur lors de la publication.");
+                    setLoading(false);
+                });
+            }
+        };
+        window.addEventListener("message", handleExtensionResponse);
+        return () => window.removeEventListener("message", handleExtensionResponse);
+    }, [caption, isPrivate, image, userId]);
+
     const handlePost = async (e) => {
+        console.log("🧪 handlePost appelé");
         e.preventDefault();
+
+        setCaption("");
+        setImage(null);
+        setIsPrivate(false);
+        setLoading(true);
 
         const formData = new FormData();
         formData.append("user_id", userId);
@@ -35,17 +72,20 @@ function Home() {
         formData.append("is_private", isPrivate);
         formData.append("image", image);
 
-        try {
-            await axios.post("http://127.0.0.1:8000/posts/add", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            setCaption("");
-            setImage(null);
-            setIsPrivate(false);
-            window.location.reload(); // recharge les posts
-        } catch (err) {
-            alert("Erreur lors de la publication.");
-        }
+        window.postMessage({
+            source: "sovrizon-frontend",
+            action: "encrypt_image",
+            data: {
+                image_base64: image ? await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+                    reader.readAsDataURL(image);
+                }) : null,
+                image_id: "temp-id",
+                vault_url: "http://127.0.0.1:8200"
+            }
+        }, "*");
+        console.log("📤 Envoi message encrypt_image à l’extension");
     };
 
     return (
@@ -59,6 +99,7 @@ function Home() {
                     </div>
                 </>
             )}
+            {loading && <p className="text-center text-blue-500 font-semibold">Chiffrement en cours...</p>}
             {userId && (
                 <form
                     onSubmit={handlePost}
