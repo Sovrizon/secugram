@@ -163,11 +163,24 @@ function Home() {
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {posts.map((post) => (
                     <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">
-                        <img
-                            src={`data:image/jpeg;base64,${post.image}`}
-                            alt={post.caption}
-                            className="mx-auto mb-2 max-h-64 object-contain"
-                        />
+                        {post.image.startsWith("/9j/") ? (
+                            <>
+                                <img
+                                    src={`data:image/jpeg;base64,${post.image}`}
+                                    alt="Image chiffrée"
+                                    className="mx-auto mb-2 max-h-64 object-contain"
+                                />
+                                <p className="text-sm text-red-500 text-center">Image chiffrée</p>
+                            </>
+                        ) : (
+                            <>
+                                <img
+                                    src={`data:image/jpeg;base64,${post.image}`}
+                                    alt={post.caption}
+                                    className="mx-auto mb-2 max-h-64 object-contain"
+                                />
+                            </>
+                        )}
                         <p className="text-sm text-gray-700 text-center">{post.caption}</p>
                         <p className="text-xs text-gray-500 text-center">par {post.username}</p>
                     </div>

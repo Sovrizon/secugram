@@ -3,6 +3,7 @@ from db import posts_col, users_col
 from bson import ObjectId
 from fastapi import File, Form, UploadFile, HTTPException
 import base64
+import os
 
 router = APIRouter()
 
@@ -12,9 +13,21 @@ def get_all_public_posts():
     result = []
     for post in posts:
         user = users_col.find_one({"_id": post["user_id"]})
+        # Vérifie si l’image semble chiffrée (par exemple si elle ne commence pas par les premiers octets typiques JPEG)
+        raw_image = post["image"]
+        jpeg_magic = b"\xff\xd8\xff"
+        if raw_image.startswith(jpeg_magic):
+            encoded_image = base64.b64encode(raw_image).decode("utf-8")
+        else:
+            # image chiffrée : retourne une miniature grise connue
+            if os.path.exists("data/image_grisee.png"):
+                with open("data/image_grisee.png", "rb") as f:
+                    encoded_image = base64.b64encode(f.read()).decode("utf-8")
+            else:
+                raise HTTPException(status_code=500, detail="Placeholder image not found")
         result.append({
             "id": str(post["_id"]),
-            "image": base64.b64encode(post["image"]).decode("utf-8"),  # base64 encode the image
+            "image": encoded_image,
             "caption": post["caption"],
             "username": user["username"] if user else "Inconnu"
         })
