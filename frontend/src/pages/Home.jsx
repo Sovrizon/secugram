@@ -16,21 +16,22 @@ function Home() {
         axios.get("http://127.0.0.1:8000/posts/all")
             .then(res => {
                 setPosts(res.data);
-                console.log("🧾 Contenu des posts :", res.data.map(p => ({ id: p.id, caption: p.caption, cryptee: p.cryptee })));
+                setDecryptedImages({});
+                console.log("🧾 Contenu des posts :", res.data.map(p => ({ id: p.id, caption: p.caption })));
                 console.log("📥 Données des posts reçues :", Array.isArray(res.data), res.data);
                 res.data.forEach(post => {
                     if (post.image) {
                         console.log("🕵️‍♂️ Demande de déchiffrement pour :", post.id);
-                        chrome.runtime.sendMessage({
-                            from: "content",
+                        window.postMessage({
+                            source: "sovrizon-frontend",
                             action: "decrypt_image",
                             data: {
                                 image_id: post.id,
                                 encrypted_image_base64: post.image,
                                 vault_url: "http://127.0.0.1:8200"
                             }
-                        });
-                        console.log("📤 Message envoyé à l’extension pour le post :", post.id);
+                        }, "*");
+                        console.log("📤 Message postMessage envoyé pour le post :", post.id);
                     }
                 });
             })
@@ -51,6 +52,13 @@ function Home() {
         const handleExtensionResponse = (event) => {
             if (event.source !== window || event.data?.source !== "sovrizon-extension") return;
             console.log("✅ Réponse reçue de l’extension :", event.data);
+            if (event.data.action === "decrypt_image" && event.data.status === "success") {
+                const { image_id, decrypted_image } = event.data.data;
+                setDecryptedImages(prev => ({
+                    ...prev,
+                    [image_id]: decrypted_image
+                }));
+            }
             if (event.data.action === "encrypt_image" && event.data.status === "success") {
                 const formData = new FormData();
                 formData.append("user_id", userId);

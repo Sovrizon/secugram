@@ -18,7 +18,7 @@ def get_all_public_posts():
             "id": str(post["_id"]),
             "image": encoded_image,
             "caption": post["caption"],
-            "username": user["username"] if user else "Inconnu",
+            "username": user["username"] if user else "Inconnu"
         })
     return result
 
