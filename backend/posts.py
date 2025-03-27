@@ -21,10 +21,11 @@ def get_all_public_posts():
     return result
 
 @router.post("/add")
-async def add_post(user_id: str = Form(...), caption: str = Form(...), is_private: bool = Form(...), image: UploadFile = File(...)):
+async def add_post(user_id: str = Form(...), caption: str = Form(...), is_private: bool = Form(...), image: UploadFile = File(...), image_id=Form(...)):
     try:
         content = await image.read()
         posts_col.insert_one({
+            "image_id": image_id,
             "user_id": ObjectId(user_id),
             "caption": caption,
             "is_private": is_private,

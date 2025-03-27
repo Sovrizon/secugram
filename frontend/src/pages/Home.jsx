@@ -7,13 +7,32 @@ function Home() {
     const [isPrivate, setIsPrivate] = useState(false);
     const [posts, setPosts] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
-    const userId = localStorage.getItem("user_id");
+
     const [username, setUsername] = useState(localStorage.getItem("username"));
+    const userId = localStorage.getItem("user_id");
+
+    const [imageId, setImageId] = useState(null); // Pour suivi
 
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/posts/all")
-            .then(res => setPosts(res.data))
-            .catch(() => setPosts([]));
+            .then(res => {
+                setPosts(res.data);
+
+                if (username) {
+                    chrome.runtime.sendMessage({ from: "frontend", action: "register_user", data: { username } });
+                    chrome.runtime.sendMessage({ from: "frontend", action: "register_viewer", data: { username } });
+                }
+
+                chrome.runtime.sendMessage({
+                    from: "frontend",
+                    action: "load_posts",
+                    data: { posts: res.data, username }
+                });
+            })
+            .catch(() => {
+                console.warn("⚠️ Impossible de charger les publications");
+                setPosts([]);
+            });
     }, []);
 
     useEffect(() => {
@@ -26,39 +45,93 @@ function Home() {
         return () => clearInterval(interval);
     }, [username]);
 
+    useEffect(() => {
+        // Écoute de la réponse de l'extension avec l'image chiffrée
+        const handleEncryptedImage = (event) => {
+            if (
+                event.source !== window ||
+                event.data?.action !== "image_encrypted" ||
+                event.data?.source !== "sovrizon-extension"
+            ) return;
+
+            const { encrypted_image, image_id } = event.data.data;
+            console.log("📥 Image chiffrée reçue :", image_id);
+
+            const byteCharacters = atob(encrypted_image);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: "image/jpeg" });
+
+            const formData = new FormData();
+            formData.append("user_id", userId);
+            formData.append("caption", caption);
+            formData.append("is_private", isPrivate);
+            formData.append("image_id", image_id);
+            formData.append("image", blob, `${image_id}.jpg`);
+
+            axios.post("http://127.0.0.1:8000/posts/add", formData)
+                .then(res => {
+                    console.log("✅ Publication envoyée au backend :", res.data.message);
+                    // Optionnel : rafraîchir la liste des posts
+                })
+                .catch(err => {
+                    console.error("❌ Erreur lors de l'envoi au backend :", err);
+                });
+        };
+
+        window.addEventListener("message", handleEncryptedImage);
+        return () => window.removeEventListener("message", handleEncryptedImage);
+    }, [caption, isPrivate, userId]);
+
     const handlePost = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append("user_id", userId);
-        formData.append("caption", caption);
-        formData.append("is_private", isPrivate);
-        formData.append("image", image);
+        if (!image) {
+            alert("Veuillez sélectionner une image.");
+            return;
+        }
 
-        try {
-            await axios.post("http://127.0.0.1:8000/posts/add", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const imageBase64 = reader.result.split(',')[1];
+            const newImageId = `img-${Date.now()}`;
+            setImageId(newImageId);
+
+            window.postMessage({
+                source: "sovrizon-frontend",
+                from: "frontend",
+                action: "encrypt_image",
+                data: {
+                    image_base64: imageBase64,
+                    image_id: newImageId,
+                    username,
+                    caption,
+                    is_private: isPrivate,
+                    valid: true
+                }
             });
+
             setCaption("");
             setImage(null);
             setIsPrivate(false);
-            window.location.reload(); // recharge les posts
-        } catch (err) {
-            alert("Erreur lors de la publication.");
-        }
+        };
+
+        reader.readAsDataURL(image);
     };
 
     return (
         <div className="max-w-4xl mx-auto py-8 space-y-6">
             <h2 className="text-3xl font-bold text-center mb-8">Publications</h2>
-            {username && (
-                <>
-                    <h3 className="text-xl font-semibold text-center text-gray-700">Bienvenue {username}</h3>
-                    <div className="absolute top-4 right-4">
 
-                    </div>
-                </>
+            {username && (
+                <h3 className="text-xl font-semibold text-center text-gray-700">
+                    Bienvenue {username}
+                </h3>
             )}
+
             {userId && (
                 <form
                     onSubmit={handlePost}
@@ -67,8 +140,10 @@ function Home() {
                     <h3 className="text-xl font-semibold text-center text-gray-800">
                         Nouvelle publication
                     </h3>
+
                     <div
-                        className={`border-2 ${isDragging ? "border-blue-500 bg-blue-50" : "border-dashed border-gray-300"} rounded p-4 text-center cursor-pointer hover:border-blue-400 transition`}
+                        className={`border-2 ${isDragging ? "border-blue-500 bg-blue-50" : "border-dashed border-gray-300"} 
+                                    rounded p-4 text-center cursor-pointer hover:border-blue-400 transition`}
                         onClick={() => document.getElementById("imageInput").click()}
                         onDragOver={(e) => e.preventDefault()}
                         onDragEnter={() => setIsDragging(true)}
@@ -76,7 +151,7 @@ function Home() {
                         onDrop={(e) => {
                             e.preventDefault();
                             setIsDragging(false);
-                            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                            if (e.dataTransfer.files?.length > 0) {
                                 setImage(e.dataTransfer.files[0]);
                             }
                         }}
@@ -94,6 +169,7 @@ function Home() {
                             className="hidden"
                         />
                     </div>
+
                     <input
                         type="text"
                         placeholder="Légende"
@@ -102,6 +178,7 @@ function Home() {
                         className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                         required
                     />
+
                     <label className="inline-flex items-center">
                         <input
                             type="checkbox"
@@ -111,6 +188,7 @@ function Home() {
                         />
                         Privé
                     </label>
+
                     <button
                         type="submit"
                         className="w-full bg-centrale text-white py-2 rounded hover:opacity-90 transition"
@@ -119,6 +197,7 @@ function Home() {
                     </button>
                 </form>
             )}
+
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {posts.map((post) => (
                     <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">

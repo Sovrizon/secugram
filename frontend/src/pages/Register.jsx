@@ -8,22 +8,27 @@ function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
         try {
+            // ✅ Envoi au backend
             const res = await axios.post("http://127.0.0.1:8000/auth/register", {
                 username,
                 password,
             });
+
             setMessage(res.data.message);
+
+            // ✅ Si succès, envoi à l’extension
+            window.postMessage({
+                source: "sovrizon-frontend",
+                from: "frontend",
+                action: "register_user",
+                data: { username }
+            }, "*");
+            console.log("📤 Message envoyé à l'extension :", username);
+
         } catch (err) {
-            try {
-                const res = await axios.post("http://127.0.0.1:8000/auth/register", {
-                    username,
-                    password,
-                });
-                setMessage(res.data.message);
-            } catch (err) {
-                setMessage(err.response?.data?.detail || "Erreur inconnue");
-            }
+            setMessage(err.response?.data?.detail || "Erreur inconnue");
         }
     };
 
