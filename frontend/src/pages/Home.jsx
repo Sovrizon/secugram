@@ -23,14 +23,22 @@ function Home() {
             ) return;
 
             const { image_id, decrypted_image, valid } = event.data;
-            // console.log("🎯 Home.jsx a reçu une image déchiffrée :", decrypted_image);
-            if (!valid) return;
 
+            console.log("🎯 Home.jsx a reçu une image déchiffrée :", {
+                image_id,
+                valid,
+                preview: decrypted_image?.slice(0, 50) + "..."
+            });
+
+            if (!valid) {
+                console.warn(`⚠️ Image ${image_id} invalide, elle ne sera pas affichée`);
+                return;
+            }
             // Remplace l'image chiffrée dans les posts
             setPosts(prev =>
                 prev.map(post =>
                     post.image_id === image_id
-                        ? { ...post, image: decrypted_image }
+                        ? { ...post, image: `data:image/jpeg;base64,${decrypted_image}` }
                         : post
                 )
             );
@@ -240,8 +248,14 @@ function Home() {
                 {posts.map((post) => (
                     <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">
                         <img
-                            src={post.image.startsWith("data:") ? post.image : `data:image/jpeg;base64,${post.image}`}
-                            alt={post.caption}
+                            src={
+                                post.image.startsWith("data:image/")
+                                    ? post.image
+                                    : "/image_cadenas.png"
+                            }
+                            alt={post.image.startsWith("data:image/")
+                                ? post.caption
+                                : "Image protégée"}
                             className="mx-auto mb-2 max-h-64 object-contain"
                         />
                         <p className="text-sm text-gray-700 text-center">{post.caption}</p>
