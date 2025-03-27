@@ -4,7 +4,7 @@ import axios from "axios";
 function Home() {
     const [image, setImage] = useState(null);
     const [caption, setCaption] = useState("");
-    const [isPrivate, setIsPrivate] = useState(false);
+    // const [isPrivate, setIsPrivate] = useState(false);
     const [posts, setPosts] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -38,7 +38,12 @@ function Home() {
             setPosts(prev =>
                 prev.map(post =>
                     post.image_id === image_id
-                        ? { ...post, image: `data:image/jpeg;base64,${decrypted_image}` }
+                        ? {
+                            ...post,
+                            image: `data:image/jpeg;base64,${decrypted_image}`,
+                            caption: post.caption || "", // assure que caption n’est pas undefined
+                            username: post.username || "Anonyme" // par sécurité
+                        }
                         : post
                 )
             );
@@ -113,24 +118,35 @@ function Home() {
 
             const formData = new FormData();
             formData.append("user_id", userId);
-            formData.append("caption", caption);
-            formData.append("is_private", isPrivate);
+            formData.append("caption", window.__temp_post_data?.caption || "");
+            // formData.append("is_private", window.__temp_post_data?.isPrivate || false);
             formData.append("image_id", image_id);
             formData.append("image", blob, `${image_id}.jpg`);
 
             axios.post("http://127.0.0.1:8000/posts/add", formData)
                 .then(res => {
                     console.log("✅ Publication envoyée au backend :", res.data.message);
-                    // Optionnel : rafraîchir la liste des posts
-                })
-                .catch(err => {
+
+                    // Ajout dynamique du post dans la liste
+                    setPosts(prev => [
+                        {
+                            id: Date.now(), // provisoire
+                            username,
+                            caption,
+                            image_id,
+                            image: "/image_cadenas.png", // sera remplacée lors du déchiffrement
+                            // is_private: isPrivate
+                        },
+                        ...prev
+                    ]);
+                })                .catch(err => {
                     console.error("❌ Erreur lors de l'envoi au backend :", err);
                 });
         };
 
         window.addEventListener("message", handleEncryptedImage);
         return () => window.removeEventListener("message", handleEncryptedImage);
-    }, [caption, isPrivate, userId]);
+    }, [caption, userId]);
 
     const handlePost = async (e) => {
         e.preventDefault();
@@ -146,6 +162,10 @@ function Home() {
             const newImageId = `img-${Date.now()}`;
             setImageId(newImageId);
 
+            // 🔐 Capture des données au moment de l'envoi
+            const currentCaption = caption;
+            // const currentIsPrivate = isPrivate;
+
             window.postMessage({
                 source: "sovrizon-frontend",
                 from: "frontend",
@@ -154,15 +174,22 @@ function Home() {
                     image_base64: imageBase64,
                     image_id: newImageId,
                     username,
-                    caption,
-                    is_private: isPrivate,
+                    caption: currentCaption,
+                    // is_private: currentIsPrivate,
                     valid: true
                 }
             });
 
+            // Nettoyage du formulaire (après le postMessage)
             setCaption("");
             setImage(null);
-            setIsPrivate(false);
+            // setIsPrivate(false);
+
+            // 💾 Stocker temporairement pour utilisation dans handleEncryptedImage
+            window.__temp_post_data = {
+                caption: currentCaption,
+                // isPrivate: currentIsPrivate,
+            };
         };
 
         reader.readAsDataURL(image);
@@ -218,22 +245,22 @@ function Home() {
 
                     <input
                         type="text"
-                        placeholder="Légende"
+                        placeholder="Description"
                         value={caption}
                         onChange={(e) => setCaption(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                         required
                     />
 
-                    <label className="inline-flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={isPrivate}
-                            onChange={(e) => setIsPrivate(e.target.checked)}
-                            className="mr-2"
-                        />
-                        Privé
-                    </label>
+                    {/*<label className="inline-flex items-center">*/}
+                    {/*    <input*/}
+                    {/*        type="checkbox"*/}
+                    {/*        checked={isPrivate}*/}
+                    {/*        onChange={(e) => setIsPrivate(e.target.checked)}*/}
+                    {/*        className="mr-2"*/}
+                    {/*    />*/}
+                    {/*    Privé*/}
+                    {/*</label>*/}
 
                     <button
                         type="submit"
