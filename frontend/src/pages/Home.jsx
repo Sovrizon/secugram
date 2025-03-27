@@ -11,39 +11,77 @@ function Home() {
     const [username, setUsername] = useState(localStorage.getItem("username"));
     const userId = localStorage.getItem("user_id");
 
-    const [imageId, setImageId] = useState(null); // Pour suivi
+    const [imageId, setImageId] = useState(null);
 
+    // 🔁 Réception des images déchiffrées
+    useEffect(() => {
+        const handleDecryptedImage = (event) => {
+            if (
+                event.source !== window ||
+                event.data?.action !== "receive_key" ||
+                event.data?.source !== "sovrizon-extension"
+            ) return;
+
+            const { image_id, decrypted_image, valid } = event.data;
+            // console.log("🎯 Home.jsx a reçu une image déchiffrée :", decrypted_image);
+            if (!valid) return;
+
+            // Remplace l'image chiffrée dans les posts
+            setPosts(prev =>
+                prev.map(post =>
+                    post.image_id === image_id
+                        ? { ...post, image: decrypted_image }
+                        : post
+                )
+            );
+        };
+
+        window.addEventListener("message", handleDecryptedImage);
+        return () => window.removeEventListener("message", handleDecryptedImage);
+    }, []);
+
+    // 🔁 Chargement initial et envoi à l'extension
     useEffect(() => {
         axios.get("http://127.0.0.1:8000/posts/all")
             .then(res => {
-                setPosts(res.data);
+                const rawPosts = res.data;
+                setPosts(rawPosts);
 
-                if (username) {
-                    chrome.runtime.sendMessage({ from: "frontend", action: "register_user", data: { username } });
-                    chrome.runtime.sendMessage({ from: "frontend", action: "register_viewer", data: { username } });
-                }
+                // if (username) {
+                //     window.postMessage({
+                //         source: "sovrizon-frontend",
+                //         action: "register_user",
+                //         data: { username }
+                //     }, "*");
+                //     chrome.runtime.sendMessage({ from: "frontend", action: "register_viewer", data: { username } });
+                // }
 
-                chrome.runtime.sendMessage({
-                    from: "frontend",
-                    action: "load_posts",
-                    data: { posts: res.data, username }
+                // Envoi à l'extension pour déchiffrement
+                const encrypted_images = {};
+                const image_ids = [];
+
+                rawPosts.forEach(post => {
+                    encrypted_images[post.image_id] = post.image;
+                    image_ids.push(post.image_id);
+                });
+
+                window.postMessage({
+                    source: "sovrizon-frontend",
+                    action: "decrypt_with_token",
+                    data: {
+                        username,
+                        image_ids,
+                        encrypted_images,
+                    }
                 });
             })
-            .catch(() => {
+            .catch((err) => {
                 console.warn("⚠️ Impossible de charger les publications");
+                console.error(err); // ← ajoute ça
+
                 setPosts([]);
             });
     }, []);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const storedUsername = localStorage.getItem("username");
-            if (storedUsername !== username) {
-                setUsername(storedUsername);
-            }
-        }, 500);
-        return () => clearInterval(interval);
-    }, [username]);
 
     useEffect(() => {
         // Écoute de la réponse de l'extension avec l'image chiffrée
@@ -202,7 +240,7 @@ function Home() {
                 {posts.map((post) => (
                     <div key={post.id} className="bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition">
                         <img
-                            src={`data:image/jpeg;base64,${post.image}`}
+                            src={post.image.startsWith("data:") ? post.image : `data:image/jpeg;base64,${post.image}`}
                             alt={post.caption}
                             className="mx-auto mb-2 max-h-64 object-contain"
                         />
