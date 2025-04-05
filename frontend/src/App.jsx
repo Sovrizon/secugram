@@ -41,7 +41,7 @@ function App() {
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center space-x-3 text-2xl font-bold text-centrale">
                             <img src="/logo.png" alt="Logo" className="h-12 w-12" />
-                            <span>Secugram - Vos images, Votre sécurité</span>
+                            <span>Secugram - Vos images, Votre </span>
                         </Link>
                     </div>
 
