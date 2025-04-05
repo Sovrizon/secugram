@@ -25,6 +25,14 @@ function App() {
                     <button
                         onClick={() => {
                             localStorage.clear();
+
+                            if (chrome?.storage?.local) {
+                                chrome.storage.local.remove("trust_token", () => {
+                                    console.log("trust_token supprimé");
+                                    chrome.storage.local.set({ trust_token_updated_at: Date.now() });
+                                });
+                            }
+
                             window.location.href = "/";
                         }}
                         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"

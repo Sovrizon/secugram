@@ -18,7 +18,14 @@ function Login() {
             setMessage(res.data.message);
             localStorage.setItem("user_id", res.data.user_id);
             localStorage.setItem("username", res.data.username);
-            window.dispatchEvent(new Event("storage"));
+
+            const storageEvent = new StorageEvent("storage", {
+                key: "username",
+                newValue: res.data.username,
+                oldValue: null,
+                storageArea: localStorage
+            });
+            window.dispatchEvent(storageEvent);
             navigate("/"); // Redirection après connexion
         } catch (err) {
             setMessage(err.response?.data?.detail || "Erreur inconnue");

@@ -159,7 +159,7 @@ function Home() {
                             window.postMessage({
                                 source: "sovrizon-frontend",
                                 action: "decrypt_with_token",
-                                data: {
+                                dcata: {
                                     token,
                                     username,
                                     image_ids: [image_id],
