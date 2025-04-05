@@ -31,7 +31,19 @@ function Home() {
             });
 
             if (!valid) {
-                console.warn(`⚠️ Image ${image_id} invalide, elle ne sera pas affichée`);
+                console.warn(`⚠️ Image ${image_id} invalide, affichage du cadenas.`);
+                setPosts(prev =>
+                    prev.map(post =>
+                        post.image_id === image_id
+                            ? {
+                                ...post,
+                                image: "/image_cadenas.png",
+                                caption: post.caption || "",
+                                username: post.username || "Anonyme"
+                            }
+                            : post
+                    )
+                );
                 return;
             }
             // Remplace l'image chiffrée dans les posts
@@ -127,19 +139,42 @@ function Home() {
                 .then(res => {
                     console.log("✅ Publication envoyée au backend :", res.data.message);
 
-                    // Ajout dynamique du post dans la liste
+                    // Ajout du post avec cadenas par défaut
                     setPosts(prev => [
                         {
-                            id: Date.now(), // provisoire
+                            id: Date.now(),
                             username,
                             caption,
                             image_id,
-                            image: "/image_cadenas.png", // sera remplacée lors du déchiffrement
-                            // is_private: isPrivate
+                            image: "/image_cadenas.png",
                         },
                         ...prev
                     ]);
-                })                .catch(err => {
+
+                    // 🔐 Tenter déchiffrement immédiat si token présent
+                    chrome.storage.local.get(["trust_token"], (result) => {
+                        const token = result.trust_token;
+                        if (token) {
+                            console.log("🔄 Token trouvé, tentative de déchiffrement automatique.");
+                            window.postMessage({
+                                source: "sovrizon-frontend",
+                                action: "decrypt_with_token",
+                                data: {
+                                    token,
+                                    username,
+                                    image_ids: [image_id],
+                                    encrypted_images: {
+                                        [image_id]: encrypted_image
+                                    }
+                                }
+                            }, "*");
+                        } else {
+                            console.warn("⚠️ Aucun token trouvé, déchiffrement différé.");
+                        }
+                    });
+                })
+
+    .catch(err => {
                     console.error("❌ Erreur lors de l'envoi au backend :", err);
                 });
         };
@@ -287,6 +322,7 @@ function Home() {
                         />
                         <p className="text-sm text-gray-700 text-center">{post.caption}</p>
                         <p className="text-xs text-gray-500 text-center">par {post.username}</p>
+                        <p className="text-xs text-gray-400 text-center italic">{post.image_id}</p>
                     </div>
                 ))}
             </div>

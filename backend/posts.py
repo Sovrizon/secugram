@@ -11,7 +11,7 @@ def get_all_public_posts():
     posts = posts_col.find()
     result = []
     for post in posts:
-        print("voici l'image" + base64.b64encode(post["image"]).decode("utf-8"))
+        # print("voici l'image" + base64.b64encode(post["image"]).decode("utf-8"))
         user = users_col.find_one({"_id": post["user_id"]})
         result.append({
             "id": str(post["_id"]),
