@@ -84,7 +84,7 @@ function Home() {
     // 🔁 Chargement initial et envoi à l'extension
     useEffect(() => {
         setIsLoading(true);
-        axios.get("http://127.0.0.1:8000/posts/all")
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/posts/all`)
             .then(res => {
                 const rawPosts = res.data;
                 setPosts(rawPosts);
@@ -143,7 +143,7 @@ function Home() {
             formData.append("image_id", image_id);
             formData.append("image", blob, `${image_id}.jpg`);
 
-            axios.post("http://127.0.0.1:8000/posts/add", formData)
+            axios.post(`${import.meta.env.VITE_API_BASE_URL}/posts/add`, formData)
                 .then(res => {
                     console.log("✅ Publication envoyée au backend :", res.data.message);
 
