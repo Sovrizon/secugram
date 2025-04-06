@@ -18,7 +18,7 @@ Elle permet à des utilisateurs inscrits de publier des images avec descriptions
 
 - 📝 Inscription et connexion
 - 🖼️ Publication d’images avec description
-- 🔐 Chiffrement des images à l’envoi
+- 🔐 Communication avec [l'extension Chrome](https://github.com/Sovrizon/extension) pour le chiffrement et déchiffrement
 - ✅ Stockage des métadonnées associées
 - 🔗 API sécurisée pour accès contrôlé
 
@@ -63,7 +63,7 @@ npm run dev
 
 Secugram est accessible publiquement via les services suivants :
 
-- **Frontend (Firebase Hosting)** : [https://secugram-82493.web.app/](https://secugram-82493.web.app/)
+- **Frontend (Firebase Hosting)** : [https://secugram-82493.web.app](https://secugram-82493.web.app)
 - **Backend (Render)** : [https://secugram.onrender.com/docs](https://secugram.onrender.com/docs)
 
 
