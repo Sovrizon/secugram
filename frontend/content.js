@@ -1,0 +1,1 @@
+["https://secugram.web.app/*"]
