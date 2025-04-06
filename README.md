@@ -1,45 +1,94 @@
-# 📸 Secugram
+# 📸 Secugram — Application Web
 
-**Secugram** est une plateforme web de partage d'images avec chiffrement intégré et contrôle d’accès délégué à un tiers de confiance.  
-Elle repose sur une architecture sécurisée incluant un backend FastAPI, un frontend React et une extension Chrome.
+Secugram est une application web simplifiée de partage d’images.  
+Elle permet à des utilisateurs inscrits de publier des images avec descriptions. Les images sont **chiffrées côté serveur** et protégées par un système de clés sécurisé.
+
+---
+
+## 🧱 Technologies
+
+- **Frontend** : React (Vite)
+- **Backend** : FastAPI
+- **Base de données** : MongoDB
+- **Chiffrement** : interaction avec un tiers de confiance pour la gestion des clés
 
 ---
 
 ## ✨ Fonctionnalités
 
-- 🔐 Chiffrement des images côté client
-- 🧾 Stockage sécurisé avec contrôle de validité
-- ✅ Déchiffrement conditionnel via token
-- 👥 Gestion des utilisateurs, authentification simple
-- 🧩 Extension Chrome pour gérer les tokens et valider l'accès
+- 📝 Inscription et connexion
+- 🖼️ Publication d’images avec description
+- 🔐 Chiffrement des images à l’envoi
+- ✅ Stockage des métadonnées associées
+- 🔗 API sécurisée pour accès contrôlé
 
 ---
 
-## 🧱 Architecture
-
-- **Frontend** : React (Vite)
-- **Backend** : FastAPI (`/backend`)
-- **Tiers de confiance** : FastAPI indépendant (gère les tokens + clés)
-- **Extension Chrome** : communication avec le tiers de confiance et l'interface utilisateur
-
----
-
-## 🚀 Déploiement
-
-### 🌐 Production
-- **Frontend** : [secugram.web.app](https://secugram.web.app) (Firebase Hosting)
-- **Backend** : [secugram.onrender.com](https://secugram.onrender.com) (Render)
-- **Tiers de confiance** : [tiers-de-confiance.onrender.com](https://tiers-de-confiance.onrender.com) (Render)
-- **Extension Chrome** : disponible sur le Chrome Web Store
-
----
-
-## 🛠️ Installation locale
+## 🚀 Installation locale
 
 ### 1. Cloner le dépôt
 
-```bash
-git clone https://github.com/ton-username/secugram.git
+```
+git clone https://github.com/ton-user/secugram.git
 cd secugram
+```
+
+### 2. Lancer le backend
+
+Assurez-vous que MongoDB tourne localement ou via un service distant.
+
+```
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+> Le fichier `.env` du backend doit contenir les variables `MONGO_USERNAME` et `MONGO_PASSWORD` pour la connexion à MongoDB.
+
+### 3. Lancer le frontend
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+> Le frontend sera accessible sur `http://localhost:5173`
+
+---
+
+
+
+## 🌐 Disponibilité en ligne
+
+Secugram est accessible publiquement via les services suivants :
+
+- **Frontend (Firebase Hosting)** : [https://secugram-82493.web.app/](https://secugram-82493.web.app/)
+- **Backend (Render)** : [https://secugram.onrender.com/docs](https://secugram.onrender.com/docs)
+
+
+
+## 🔐 Dépendance au tiers de confiance
+
+L’application repose sur un **serveur tiers** pour :
+
+- Générer et stocker les clés de chiffrement
+- Assurer l’authentification par token
+- Autoriser ou bloquer l'accès aux images
+
+Voir le dépôt [`tiers-de-confiance`](https://github.com/sovrizon/tiers-de-confiance)
+
+---
+
+## 📂 Structure du dépôt
+
+```
+secugram/
+├── backend/         # API FastAPI
+│   ├── main.py
+│   └── ...
+├── frontend/        # Application React
+│   └── src/
+└── README.md
 ```
 
