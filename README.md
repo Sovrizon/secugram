@@ -1,6 +1,6 @@
 # 📸 Secugram — Application Web
 
-Secugram est une application web simplifiée de partage d’images.  
+Ce dépôt contient le code source de l'**application web** pour le projet Sovrizon. Secugram est une application web simplifiée de partage d'images.  
 Elle permet à des utilisateurs inscrits de publier des images avec descriptions. Les images sont **chiffrées côté serveur** et protégées par un système de clés sécurisé.
 
 ---
@@ -17,7 +17,7 @@ Elle permet à des utilisateurs inscrits de publier des images avec descriptions
 ## ✨ Fonctionnalités
 
 - 📝 Inscription et connexion
-- 🖼️ Publication d’images avec description
+- 🖼️ Publication d'images avec description
 - 🔐 Communication avec [l'extension Chrome](https://github.com/Sovrizon/extension) pour le chiffrement et déchiffrement
 - ✅ Stockage des métadonnées associées
 - 🔗 API sécurisée pour accès contrôlé
@@ -57,8 +57,6 @@ npm run dev
 
 ---
 
-
-
 ## 🌐 Disponibilité en ligne
 
 Secugram est accessible publiquement via les services suivants :
@@ -66,14 +64,14 @@ Secugram est accessible publiquement via les services suivants :
 - **Frontend (Firebase Hosting)** : [https://secugram-82493.web.app](https://secugram-82493.web.app)
 - **Backend (Render)** : [https://secugram.onrender.com/docs](https://secugram.onrender.com/docs)
 
-
+---
 
 ## 🔐 Dépendance au tiers de confiance
 
-L’application repose sur un **serveur tiers** pour :
+L'application repose sur un **serveur tiers** pour :
 
 - Générer et stocker les clés de chiffrement
-- Assurer l’authentification par token
+- Assurer l'authentification par token
 - Autoriser ou bloquer l'accès aux images
 
 Voir le dépôt [`tiers-de-confiance`](https://github.com/sovrizon/tiers-de-confiance)
@@ -92,3 +90,19 @@ secugram/
 └── README.md
 ```
 
+---
+
+## 👥 Auteurs et Contribution
+
+Ce projet a été développé par :
+- **Rémy GASMI**
+- **Simon VINCENT**
+- **Loqmen ANANI**
+
+dans le cadre de leur projet de 3ème année à l'École Centrale de Lyon.
+
+---
+
+## 📄 Licence
+
+© 2025 Sovrizon – Tous droits réservés.
