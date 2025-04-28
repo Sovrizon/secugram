@@ -23,7 +23,8 @@ import asyncio
 import requests
 import random
 
-TARGET_BACKEND_URL = "https://tiers-de-confiance.onrender.com/get_key/lalalala"
+TARGET_BACKEND_URL_RENDER = "https://tiers-de-confiance.onrender.com/get_key/lalalala"
+TARGET_BACKEND_URL = "https://tiers-de-confiance-production.up.railway.app//get_key/lalalala"
 # PING_INTERVAL_SECONDS = 600  # 10 minutes
 
 @app.on_event("startup")
