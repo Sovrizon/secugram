@@ -68,8 +68,8 @@ exit
 Créez un fichier `.env` dans le dossier `backend` avec les variables suivantes :
 
 ```
-MONGO_USERNAME="votre_nom_utilisateur"
-MONGO_PASSWORD="votre_mot_de_passe_securise"
+MONGO_USERNAME=votre_username_mongodb
+MONGO_PASSWORD=votre_password_mongodb
 MONGO_HOST="localhost:27017"  # Remplacez par votre host:port MongoDB
 ```
 
