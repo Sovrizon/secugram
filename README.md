@@ -44,34 +44,35 @@ cd secugram
 - Pour installer MongoDB : [Guide d'installation](https://www.mongodb.com/docs/manual/installation/)
 - Pour installer mongosh : [Guide d'installation](https://www.mongodb.com/docs/mongodb-shell/install/)
 
-#### Création d'un utilisateur MongoDB
-Si vous n'avez pas encore créé d'utilisateur pour votre base de données MongoDB :
 
-```bash
-# Connectez-vous à MongoDB
-mongosh
+#### Simplification avec Cloud MongoDB
 
-# Créez un utilisateur admin
-use admin
-db.createUser({
-  user: "votre_nom_utilisateur",
-  pwd: "votre_mot_de_passe_securise",
-  roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
-})
+Vous pouvez également utiliser un service de base de données cloud comme [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) pour éviter d'installer MongoDB localement.
 
-# Quittez MongoDB
-exit
-```
+
+#### Installation de MongoDB localement
+
+Si vous souhaitez utiliser MongoDB localement, vous devez créer un utilisateur avec les droits d'accès à la base de données. Voici comment procéder : [tutoriel](https://www.mongodb.com/resources/products/fundamentals/create-database).
+
+
+
+
+
 
 #### Configuration du fichier .env pour le backend
 
 Créez un fichier `.env` dans le dossier `backend` avec les variables suivantes :
 
 ```
-MONGO_USERNAME=votre_username_mongodb
-MONGO_PASSWORD=votre_password_mongodb
-MONGO_HOST="localhost:27017"  # Remplacez par votre host:port MongoDB
+MONGO_URI="mongodb://<username>:<password>@localhost:27017" # local
 ```
+
+ou
+
+```
+MONGO_URI="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/test" # cloud
+```
+
 
 ### 3. Lancer le backend
 
@@ -88,8 +89,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8100
 ```
-
-Si Python n'est pas installé, téléchargez-le depuis [le site officiel de Python](https://www.python.org/downloads/).
 
 La documentation de l'API sera accessible à l'adresse : `http://localhost:8100/docs`
 
