@@ -29,10 +29,11 @@ function Register() {
 
         setIsLoading(true);
         setMessage("");
+        console.log("🔍 VITE_HOST_BACKEND =", import.meta.env.VITE_HOST_BACKEND);
 
         try {
             // ✅ Envoi au backend
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, {
+            const res = await axios.post(`${import.meta.env.VITE_HOST_BACKEND}/auth/register`, {
                 username,
                 password,
             });

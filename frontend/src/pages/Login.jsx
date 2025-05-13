@@ -16,7 +16,7 @@ function Login() {
         setMessage("");
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+            const res = await axios.post(`${import.meta.env.VITE_HOST_BACKEND}/auth/login`, {
                 username,
                 password,
             });

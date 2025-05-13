@@ -13,7 +13,7 @@ MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}/"
 try:
     print("[INFO] Connexion à MongoDB...")
     client = MongoClient(MONGO_URI)
-    db = client["instalitre"]
+    db = client["secugram"]
     print("[OK] Connexion établie.")
 except errors.ConnectionFailure as e:
     print(f"[ERREUR] Échec de connexion : {e}")
