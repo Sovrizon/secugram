@@ -28,41 +28,89 @@ Elle permet à des utilisateurs inscrits de publier des images avec descriptions
 
 ### 1. Cloner le dépôt
 
-```
-git clone https://github.com/ton-user/secugram.git
+```bash
+git clone https://github.com/Sovrizon/secugram.git
 cd secugram
 ```
 
-### 2. Lancer le backend
+### 2. Configuration de MongoDB locale
 
-Assurez-vous que MongoDB tourne localement ou via un service distant.
+#### Prérequis
+- [Node.js](https://nodejs.org/fr/download/) (version 16+)
+- [MongoDB](https://www.mongodb.com/try/download/community) installé localement
+- [Mongosh](https://www.mongodb.com/docs/mongodb-shell/install/) (MongoDB Shell)
+
+#### Installation de MongoDB et mongosh
+- Pour installer MongoDB : [Guide d'installation](https://www.mongodb.com/docs/manual/installation/)
+- Pour installer mongosh : [Guide d'installation](https://www.mongodb.com/docs/mongodb-shell/install/)
+
+#### Création d'un utilisateur MongoDB
+Si vous n'avez pas encore créé d'utilisateur pour votre base de données MongoDB :
+
+```bash
+# Connectez-vous à MongoDB
+mongosh
+
+# Créez un utilisateur admin
+use admin
+db.createUser({
+  user: "votre_nom_utilisateur",
+  pwd: "votre_mot_de_passe_securise",
+  roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+})
+
+# Quittez MongoDB
+exit
+```
+
+#### Configuration du fichier .env pour le backend
+
+Créez un fichier `.env` dans le dossier `backend` avec les variables suivantes :
 
 ```
+MONGO_USERNAME="votre_nom_utilisateur"
+MONGO_PASSWORD="votre_mot_de_passe_securise"
+MONGO_HOST="localhost:27017"  # Remplacez par votre host:port MongoDB
+```
+
+### 3. Lancer le backend
+
+```bash
 cd backend
+python -m venv venv
+
+# Activation de l'environnement virtuel
+# Sous Windows
+venv\Scripts\activate
+# Sous Linux/MacOS
+source venv/bin/activate
+
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --port 8100
 ```
 
-> Le fichier `.env` du backend doit contenir les variables `MONGO_USERNAME` et `MONGO_PASSWORD` pour la connexion à MongoDB.
+Si Python n'est pas installé, téléchargez-le depuis [le site officiel de Python](https://www.python.org/downloads/).
 
-### 3. Lancer le frontend
+La documentation de l'API sera accessible à l'adresse : `http://localhost:8100/docs`
 
-```
+### 4. Lancer le frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-> Le frontend sera accessible sur `http://localhost:5173`
+Le frontend sera accessible à l'adresse : `http://localhost:5173`
 
----
+> **Note** : Si vous n'avez pas Node.js installé, téléchargez-le depuis [nodejs.org](https://nodejs.org/fr/download/) (version LTS recommandée)
 
-## 🌐 Disponibilité en ligne
+### 5. Vérification de l'installation
 
-Secugram est accessible publiquement via les services suivants :
+1. Ouvrez `http://localhost:5173` dans votre navigateur
+2. L'application devrait se connecter automatiquement au backend sur `http://localhost:8100`
+3. Vous pouvez créer un compte et commencer à utiliser l'application
 
-- **Frontend (Firebase Hosting)** : [https://secugram-82493.web.app](https://secugram-82493.web.app)
-- **Backend (Render)** : [https://secugram.onrender.com/docs](https://secugram.onrender.com/docs)
 
 ---
 
@@ -74,7 +122,7 @@ L'application repose sur un **serveur tiers** pour :
 - Assurer l'authentification par token
 - Autoriser ou bloquer l'accès aux images
 
-Voir le dépôt [`tiers-de-confiance`](https://github.com/sovrizon/tiers-de-confiance)
+Voir le dépôt [tiers-de-confiance](https://github.com/sovrizon/tiers-de-confiance)
 
 ---
 
@@ -84,6 +132,7 @@ Voir le dépôt [`tiers-de-confiance`](https://github.com/sovrizon/tiers-de-conf
 secugram/
 ├── backend/         # API FastAPI
 │   ├── main.py
+│   ├── .env         # Configuration de connexion à MongoDB
 │   └── ...
 ├── frontend/        # Application React
 │   └── src/
