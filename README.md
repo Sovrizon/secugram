@@ -33,12 +33,8 @@ git clone https://github.com/Sovrizon/secugram.git
 cd secugram
 ```
 
-### 2. Configuration de MongoDB locale
+### 2. Configuration de MongoDB 
 
-#### Prérequis
-- [Node.js](https://nodejs.org/fr/download/) (version 16+)
-- [MongoDB](https://www.mongodb.com/try/download/community) installé localement
-- [Mongosh](https://www.mongodb.com/docs/mongodb-shell/install/) (MongoDB Shell)
 
 #### Installation de MongoDB et mongosh
 - Pour installer MongoDB : [Guide d'installation](https://www.mongodb.com/docs/manual/installation/)
@@ -61,7 +57,7 @@ Si vous souhaitez utiliser MongoDB localement, vous devez créer un utilisateur 
 
 #### Configuration du fichier .env pour le backend
 
-Créez un fichier `.env` dans le dossier `backend` avec les variables suivantes :
+Créez un fichier `.env` dans le dossier `backend` avec la variable suivante :
 
 ```
 MONGO_URI="mongodb://<username>:<password>@localhost:27017" # local
